@@ -10,7 +10,7 @@ import java.util.List;
 public class DataRetriever {
 
     public Dish findDishById(Integer id) {
-        String sql = "SELECT id, name, dish_type FROM dish WHERE id = ?";
+        String sql = "SELECT id, name, dish_type, price FROM dish WHERE id = ?";
         try (Connection connection = DBConnection.getDBConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
@@ -23,10 +23,16 @@ public class DataRetriever {
                 String dishTypeText = resultSet.getString("dish_type");
                 DishType dishType = DishType.valueOf(dishTypeText);
 
+                Double dishPrice = resultSet.getDouble("price");
+                if (resultSet.wasNull()) {
+                    dishPrice = null;
+                }
+
                 Dish dish = new Dish();
                 dish.setId(dishId);
                 dish.setName(name);
                 dish.setDishType(dishType);
+                dish.setPrice(dishPrice);
 
                 List<Ingredient> ingredients = findIngredientsForDish(connection, dishId, dish);
                 dish.setIngredients(ingredients);
@@ -60,7 +66,7 @@ public class DataRetriever {
     }
 
     public List<Ingredient> findIngredients(int page, int size) {
-        String sql = "SELECT i.id, i.name, i.price, i.category, i.id_dish, d.name AS dish_name, d.dish_type " +
+        String sql = "SELECT i.id, i.name, i.price, i.category, i.id_dish, d.name AS dish_name, d.dish_type, d.price AS dish_price " +
                 "FROM ingredient i LEFT JOIN dish d ON i.id_dish = d.id " +
                 "ORDER BY i.id LIMIT ? OFFSET ?";
         List<Ingredient> ingredients = new ArrayList<>();
@@ -161,10 +167,15 @@ public class DataRetriever {
 
             int dishId = dishToSave.getId();
             if (dishId <= 0) {
-                String insertSql = "INSERT INTO dish(name, dish_type) VALUES (?, CAST(? AS dish_type_enum)) RETURNING id";
+                String insertSql = "INSERT INTO dish(name, dish_type, price) VALUES (?, CAST(? AS dish_type_enum), ?) RETURNING id";
                 try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
                     statement.setString(1, dishToSave.getName());
                     statement.setString(2, dishToSave.getDishType().name());
+                    if (dishToSave.getPrice() == null) {
+                        statement.setNull(3, java.sql.Types.NUMERIC);
+                    } else {
+                        statement.setDouble(3, dishToSave.getPrice());
+                    }
                     try (ResultSet resultSet = statement.executeQuery()) {
                         if (resultSet.next()) {
                             dishId = resultSet.getInt(1);
@@ -173,11 +184,16 @@ public class DataRetriever {
                     }
                 }
             } else {
-                String updateSql = "UPDATE dish SET name = ?, dish_type = CAST(? AS dish_type_enum) WHERE id = ?";
+                String updateSql = "UPDATE dish SET name = ?, dish_type = CAST(? AS dish_type_enum), price = ? WHERE id = ?";
                 try (PreparedStatement statement = connection.prepareStatement(updateSql)) {
                     statement.setString(1, dishToSave.getName());
                     statement.setString(2, dishToSave.getDishType().name());
-                    statement.setInt(3, dishId);
+                    if (dishToSave.getPrice() == null) {
+                        statement.setNull(3, java.sql.Types.NUMERIC);
+                    } else {
+                        statement.setDouble(3, dishToSave.getPrice());
+                    }
+                    statement.setInt(4, dishId);
                     statement.executeUpdate();
                 }
             }
@@ -251,7 +267,7 @@ public class DataRetriever {
     }
 
     public List<Ingredient> findIngredientsByCriteria(String ingredientName, Category category, String dishName, int page, int size) {
-        String sql = "SELECT i.id, i.name, i.price, i.category, i.id_dish, d.name AS dish_name, d.dish_type " +
+        String sql = "SELECT i.id, i.name, i.price, i.category, i.id_dish, d.name AS dish_name, d.dish_type, d.price AS dish_price " +
                 "FROM ingredient i LEFT JOIN dish d ON i.id_dish = d.id WHERE 1 = 1";
 
         if (ingredientName != null) {
@@ -314,10 +330,15 @@ public class DataRetriever {
             String dishName = resultSet.getString("dish_name");
             String dishTypeText = resultSet.getString("dish_type");
             DishType dishType = DishType.valueOf(dishTypeText);
+            Double dishPrice = resultSet.getDouble("dish_price");
+            if (resultSet.wasNull()) {
+                dishPrice = null;
+            }
             dish = new Dish();
             dish.setId(dishId);
             dish.setName(dishName);
             dish.setDishType(dishType);
+            dish.setPrice(dishPrice);
         }
 
         return new Ingredient(id, name, price, category, dish);

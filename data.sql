@@ -1,8 +1,8 @@
-INSERT INTO dish (name, dish_type) VALUES ('Salade fraîche', 'START');
-INSERT INTO dish (name, dish_type) VALUES ('Poulet grillé', 'MAIN');
-INSERT INTO dish (name, dish_type) VALUES ('Riz aux légumes', 'MAIN');
-INSERT INTO dish (name, dish_type) VALUES ('Gâteau au chocolat', 'DESSERT');
-INSERT INTO dish (name, dish_type) VALUES ('Salade de fruits', 'DESSERT');
+INSERT INTO dish (name, dish_type, price) VALUES ('Salade fraîche', 'START', 2000);
+INSERT INTO dish (name, dish_type, price) VALUES ('Poulet grillé', 'MAIN', 6000);
+INSERT INTO dish (name, dish_type, price) VALUES ('Riz aux légumes', 'MAIN', NULL);
+INSERT INTO dish (name, dish_type, price) VALUES ('Gâteau au chocolat', 'DESSERT', NULL);
+INSERT INTO dish (name, dish_type, price) VALUES ('Salade de fruits', 'DESSERT', NULL);
 
 INSERT INTO ingredient (name, price, category, id_dish) VALUES ('Laitue', 800.00, 'VEGETABLE', 1);
 INSERT INTO ingredient (name, price, category, id_dish) VALUES ('Tomate', 600.00, 'VEGETABLE', 1);

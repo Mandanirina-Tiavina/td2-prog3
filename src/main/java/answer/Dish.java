@@ -8,6 +8,7 @@ public class Dish {
     private String name;
     private DishType dishType;
     private List<Ingredient> ingredients;
+    private Double price;
 
     public Dish(int id, String name, DishType dishType, List<Ingredient> ingredients) {
         this.id = id;
@@ -59,7 +60,7 @@ public class Dish {
         ingredients.add(ingredient);
     }
 
-    public Double getDishPrice() {
+    public Double getDishCost() {
         double total = 0.0;
         if (ingredients == null) {
             return 0.0;
@@ -73,5 +74,20 @@ public class Dish {
             i = i + 1;
         }
         return total;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Double getGrossMargin() {
+        if (price == null) {
+            throw new RuntimeException("Dish price is null");
+        }
+        return price - getDishCost();
     }
 }

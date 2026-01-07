@@ -7,81 +7,32 @@ public class Main {
     public static void main(String[] args) {
         DataRetriever dataRetriever = new DataRetriever();
 
-        Dish dish1 = dataRetriever.findDishById(1);
-        System.out.println("7a: " + dish1.getName() + " ingredients=" + toIngredientNames(dish1.getIngredients()));
+        Dish salade = dataRetriever.findDishById(1);
+        System.out.println("1: " + salade.getName() + " price=" + salade.getPrice() + " cost=" + salade.getDishCost());
+        System.out.println("2: grossMargin=" + salade.getGrossMargin());
 
+        Dish riz = dataRetriever.findDishById(3);
+        System.out.println("3: " + riz.getName() + " price=" + riz.getPrice() + " cost=" + riz.getDishCost());
         try {
-            dataRetriever.findDishById(999);
-            System.out.println("7b: no exception");
+            System.out.println("4: grossMargin=" + riz.getGrossMargin());
         } catch (RuntimeException e) {
-            System.out.println("7b: exception");
+            System.out.println("4: exception");
         }
 
-        List<Ingredient> page2size2 = dataRetriever.findIngredients(2, 2);
-        System.out.println("7c: " + toIngredientNames(page2size2));
+        Dish poulet = dataRetriever.findDishById(2);
+        poulet.setPrice(6500.0);
+        Dish updatedPoulet = dataRetriever.saveDish(poulet);
+        System.out.println("5: " + updatedPoulet.getName() + " price=" + updatedPoulet.getPrice() + " cost=" + updatedPoulet.getDishCost());
+        System.out.println("6: grossMargin=" + updatedPoulet.getGrossMargin());
 
-        List<Ingredient> page3size5 = dataRetriever.findIngredients(3, 5);
-        System.out.println("7d: " + toIngredientNames(page3size5));
-
-        List<Dish> dishesByIngredientName = dataRetriever.findDishsByIngredientName("eur");
-        System.out.println("7e: " + toDishNames(dishesByIngredientName));
-
-        List<Ingredient> vegetables = dataRetriever.findIngredientsByCriteria(null, Category.VEGETABLE, null, 1, 10);
-        System.out.println("7f: " + toIngredientNames(vegetables));
-
-        List<Ingredient> emptyList = dataRetriever.findIngredientsByCriteria("cho", null, "Sal", 1, 10);
-        System.out.println("7g: " + toIngredientNames(emptyList));
-
-        List<Ingredient> chocolatList = dataRetriever.findIngredientsByCriteria("cho", null, "gâteau", 1, 10);
-        System.out.println("7h: " + toIngredientNames(chocolatList));
-
-        List<Ingredient> newIngredients = new ArrayList<>();
-        newIngredients.add(new Ingredient(0, "Fromage", 1200.0, Category.DAIRY, null));
-        newIngredients.add(new Ingredient(0, "Oignon", 500.0, Category.VEGETABLE, null));
-        List<Ingredient> createdIngredients = dataRetriever.createIngredients(newIngredients);
-        System.out.println("7i: " + toIngredientNames(createdIngredients));
-
-        List<Ingredient> newIngredientsWithExisting = new ArrayList<>();
-        newIngredientsWithExisting.add(new Ingredient(0, "Carotte", 2000.0, Category.VEGETABLE, null));
-        newIngredientsWithExisting.add(new Ingredient(0, "Laitue", 2000.0, Category.VEGETABLE, null));
-        try {
-            dataRetriever.createIngredients(newIngredientsWithExisting);
-            System.out.println("7j: no exception");
-        } catch (RuntimeException e) {
-            System.out.println("7j: exception");
-        }
-
-        Ingredient oignon = findIngredientByName("Oignon", createdIngredients);
-        List<Ingredient> ingredientsForSoup = new ArrayList<>();
-        ingredientsForSoup.add(oignon);
         Dish newDish = new Dish();
         newDish.setName("Soupe de légumes");
         newDish.setDishType(DishType.START);
-        newDish.setIngredients(ingredientsForSoup);
+        newDish.setPrice(3000.0);
+        newDish.setIngredients(new ArrayList<Ingredient>());
         Dish savedSoup = dataRetriever.saveDish(newDish);
-        System.out.println("7k: " + savedSoup.getName() + " ingredients=" + toIngredientNames(savedSoup.getIngredients()));
-
-        Dish dishToUpdate = dataRetriever.findDishById(1);
-        Ingredient fromage = findIngredientByName("Fromage", createdIngredients);
-        List<Ingredient> updatedIngredients = new ArrayList<>();
-        updatedIngredients.add(oignon);
-        int index = 0;
-        List<Ingredient> oldIngredients = dishToUpdate.getIngredients();
-        while (index < oldIngredients.size()) {
-            updatedIngredients.add(oldIngredients.get(index));
-            index = index + 1;
-        }
-        updatedIngredients.add(fromage);
-        dishToUpdate.setIngredients(updatedIngredients);
-        Dish updatedDish = dataRetriever.saveDish(dishToUpdate);
-        System.out.println("7l: " + updatedDish.getName() + " ingredients=" + toIngredientNames(updatedDish.getIngredients()));
-
-        Dish dishToUpdateAgain = dataRetriever.findDishById(1);
-        List<Ingredient> onlyFromage = new ArrayList<>();
-        onlyFromage.add(fromage);
-        dishToUpdateAgain.setIngredients(onlyFromage);
-        Dish updatedDishAgain = dataRetriever.saveDish(dishToUpdateAgain);
-        System.out.println("7m: " + updatedDishAgain.getName() + " ingredients=" + toIngredientNames(updatedDishAgain.getIngredients()));
+        System.out.println("7: " + savedSoup.getName() + " price=" + savedSoup.getPrice() + " cost=" + savedSoup.getDishCost());
+        System.out.println("8: grossMargin=" + savedSoup.getGrossMargin());
     }
 
     private static String toIngredientNames(List<Ingredient> ingredients) {

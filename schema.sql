@@ -7,6 +7,8 @@ CREATE TABLE dish (
     dish_type dish_type_enum NOT NULL
 );
 
+ALTER TABLE dish ADD COLUMN IF NOT EXISTS price NUMERIC;
+
 CREATE TABLE ingredient (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
