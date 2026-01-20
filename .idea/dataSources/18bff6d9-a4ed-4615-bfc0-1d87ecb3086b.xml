@@ -24,9 +24,8 @@
 24615||24614|C|G
 24615||-9223372036854775808|T|G
 24615||24614|T|G</Grants>
-      <IntrospectionStateNumber>792</IntrospectionStateNumber>
       <ServerVersion>18.1</ServerVersion>
-      <StartupTime>1767255364</StartupTime>
+      <StartupTime>1768228745</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -822,7 +821,6 @@ false Zulu
 14860||10|C|G
 14860||-9223372036854775808|U|G
 14860||10|U|G</Grants>
-      <IntrospectionStateNumber>792</IntrospectionStateNumber>
       <ObjectId>24615</ObjectId>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </database>
@@ -4359,9 +4357,6 @@ false Zulu
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>792</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>792</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>792</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
       <LastIntrospectionLocalTimestamp>2026-01-06.19:55:47</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
@@ -4381,7 +4376,18 @@ OTHER</Labels>
       <SubKind>enum</SubKind>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </object-type>
-    <object-type id="278" parent="276" name="dish_type_enum">
+    <object-type id="278" parent="276" name="dish_type">
+      <DetailsLevel>2</DetailsLevel>
+      <Labels>STARTER
+MAIN
+DESSERT</Labels>
+      <ObjectId>32807</ObjectId>
+      <StateNumber>842</StateNumber>
+      <SubCategory>enum</SubCategory>
+      <SubKind>enum</SubKind>
+      <OwnerName>mini_dish_db_manager</OwnerName>
+    </object-type>
+    <object-type id="279" parent="276" name="dish_type_enum">
       <DetailsLevel>2</DetailsLevel>
       <Labels>START
 MAIN
@@ -4392,7 +4398,7 @@ DESSERT</Labels>
       <SubKind>enum</SubKind>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </object-type>
-    <sequence id="279" parent="276" name="dish_id_seq">
+    <sequence id="280" parent="276" name="dish_id_seq">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>24635</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
@@ -4401,7 +4407,7 @@ DESSERT</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </sequence>
-    <sequence id="280" parent="276" name="ingredient_id_seq">
+    <sequence id="281" parent="276" name="ingredient_id_seq">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>24645</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
@@ -4410,21 +4416,21 @@ DESSERT</Labels>
       <StoredType>integer|0s</StoredType>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </sequence>
-    <table id="281" parent="276" name="dish">
+    <table id="282" parent="276" name="dish">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>24636</ObjectId>
       <StateNumber>826</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </table>
-    <table id="282" parent="276" name="ingredient">
+    <table id="283" parent="276" name="ingredient">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>24646</ObjectId>
       <StateNumber>822</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </table>
-    <column id="283" parent="281" name="id">
+    <column id="284" parent="282" name="id">
       <DefaultExpression>nextval(&apos;dish_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4433,27 +4439,27 @@ DESSERT</Labels>
       <SequenceId>24635</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="284" parent="281" name="name">
+    <column id="285" parent="282" name="name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>778</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="285" parent="281" name="dish_type">
+    <column id="286" parent="282" name="dish_type">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>778</StateNumber>
       <StoredType>dish_type_enum|0s</StoredType>
       <TypeId>24617</TypeId>
     </column>
-    <column id="286" parent="281" name="price">
+    <column id="287" parent="282" name="price">
       <Position>4</Position>
       <StateNumber>826</StateNumber>
       <StoredType>numeric|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <index id="287" parent="281" name="dish_pkey">
+    <index id="288" parent="282" name="dish_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>24643</ObjectId>
@@ -4462,14 +4468,14 @@ DESSERT</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="288" parent="281" name="dish_pkey">
+    <key id="289" parent="282" name="dish_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>24644</ObjectId>
       <Primary>1</Primary>
       <StateNumber>778</StateNumber>
       <UnderlyingIndexId>24643</UnderlyingIndexId>
     </key>
-    <column id="289" parent="282" name="id">
+    <column id="290" parent="283" name="id">
       <DefaultExpression>nextval(&apos;ingredient_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -4478,34 +4484,34 @@ DESSERT</Labels>
       <SequenceId>24645</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="290" parent="282" name="name">
+    <column id="291" parent="283" name="name">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>779</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="291" parent="282" name="price">
+    <column id="292" parent="283" name="price">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>779</StateNumber>
       <StoredType>numeric|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="292" parent="282" name="category">
+    <column id="293" parent="283" name="category">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>779</StateNumber>
       <StoredType>category_enum|0s</StoredType>
       <TypeId>24624</TypeId>
     </column>
-    <column id="293" parent="282" name="id_dish">
+    <column id="294" parent="283" name="id_dish">
       <Position>5</Position>
       <StateNumber>779</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <foreign-key id="294" parent="282" name="ingredient_id_dish_fkey">
+    <foreign-key id="295" parent="283" name="ingredient_id_dish_fkey">
       <ColNames>id_dish</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>24658</ObjectId>
@@ -4513,7 +4519,7 @@ DESSERT</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>24636</RefTableId>
     </foreign-key>
-    <index id="295" parent="282" name="ingredient_pkey">
+    <index id="296" parent="283" name="ingredient_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>24656</ObjectId>
@@ -4522,7 +4528,7 @@ DESSERT</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="296" parent="282" name="ingredient_pkey">
+    <key id="297" parent="283" name="ingredient_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>24657</ObjectId>
       <Primary>1</Primary>
