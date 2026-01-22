@@ -1,3 +1,5 @@
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 public class Ingredient {
@@ -7,6 +9,7 @@ public class Ingredient {
     private Double price;
     private Dish dish;
     private Double quantity;
+    private List<StockMovement> stockMovementList;
 
     public Double getQuantity() {
         return quantity;
@@ -14,6 +17,14 @@ public class Ingredient {
 
     public void setQuantity(Double quantity) {
         this.quantity = quantity;
+    }
+
+    public List<StockMovement> getStockMovementList() {
+        return stockMovementList;
+    }
+
+    public void setStockMovementList(List<StockMovement> stockMovementList) {
+        this.stockMovementList = stockMovementList;
     }
 
     public Ingredient() {
@@ -72,6 +83,48 @@ public class Ingredient {
 
     public void setDish(Dish dish) {
         this.dish = dish;
+    }
+
+    public StockValue getStockValueAt(Instant t) {
+        StockValue result = new StockValue();
+        double quantityAtT = 0.0;
+        Unit unit = null;
+
+        if (stockMovementList != null) {
+            for (int i = 0; i < stockMovementList.size(); i++) {
+                StockMovement movement = stockMovementList.get(i);
+                if (movement.getCreationDatetime() == null) {
+                    continue;
+                }
+                if (movement.getCreationDatetime().isAfter(t)) {
+                    continue;
+                }
+
+                StockValue value = movement.getValue();
+                if (value == null) {
+                    continue;
+                }
+
+                if (unit == null) {
+                    unit = value.getUnit();
+                }
+
+                double q = value.getQuantity();
+                if (movement.getType() == MovementTypeEnum.IN) {
+                    quantityAtT = quantityAtT + q;
+                } else if (movement.getType() == MovementTypeEnum.OUT) {
+                    quantityAtT = quantityAtT - q;
+                }
+            }
+        }
+
+        if (unit == null) {
+            unit = Unit.KG;
+        }
+
+        result.setQuantity(quantityAtT);
+        result.setUnit(unit);
+        return result;
     }
 
     @Override

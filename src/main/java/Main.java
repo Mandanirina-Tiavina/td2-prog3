@@ -1,3 +1,5 @@
+import java.time.Instant;
+
 public class Main {
     public static void main(String[] args) {
         DataRetriever dataRetriever = new DataRetriever();
@@ -34,5 +36,27 @@ public class Main {
         } catch (RuntimeException e) {
             System.out.println("Salade de fruits margin=ERREUR: " + e.getMessage());
         }
+
+        Instant t = Instant.parse("2024-01-06T12:00:00Z");
+
+        Ingredient laitue = dataRetriever.findIngredientById(1);
+        StockValue laitueStock = laitue.getStockValueAt(t);
+        System.out.println("Laitue stock=" + laitueStock.getQuantity() + " " + laitueStock.getUnit());
+
+        Ingredient tomate = dataRetriever.findIngredientById(2);
+        StockValue tomateStock = tomate.getStockValueAt(t);
+        System.out.println("Tomate stock=" + tomateStock.getQuantity() + " " + tomateStock.getUnit());
+
+        Ingredient pouletIng = dataRetriever.findIngredientById(3);
+        StockValue pouletStock = pouletIng.getStockValueAt(t);
+        System.out.println("Poulet stock=" + pouletStock.getQuantity() + " " + pouletStock.getUnit());
+
+        Ingredient chocolat = dataRetriever.findIngredientById(4);
+        StockValue chocolatStock = chocolat.getStockValueAt(t);
+        System.out.println("Chocolat stock=" + chocolatStock.getQuantity() + " " + chocolatStock.getUnit());
+
+        Ingredient beurre = dataRetriever.findIngredientById(5);
+        StockValue beurreStock = beurre.getStockValueAt(t);
+        System.out.println("Beurre stock=" + beurreStock.getQuantity() + " " + beurreStock.getUnit());
     }
 }
