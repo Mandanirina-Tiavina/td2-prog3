@@ -1,4 +1,6 @@
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -58,5 +60,33 @@ public class Main {
         Ingredient beurre = dataRetriever.findIngredientById(5);
         StockValue beurreStock = beurre.getStockValueAt(t);
         System.out.println("Beurre stock=" + beurreStock.getQuantity() + " " + beurreStock.getUnit());
+
+        Order order = new Order();
+
+        List<DishOrder> dishOrders = new ArrayList<>();
+
+        DishOrder line1 = new DishOrder();
+        Dish dish1 = dataRetriever.findDishById(1);
+        line1.setDish(dish1);
+        line1.setQuantity(2);
+        dishOrders.add(line1);
+
+        DishOrder line2 = new DishOrder();
+        Dish dish2 = dataRetriever.findDishById(2);
+        line2.setDish(dish2);
+        line2.setQuantity(1);
+        dishOrders.add(line2);
+
+        order.setDishOrders(dishOrders);
+
+        Order savedOrder = new DataRetriever().saveOrder(order);
+        System.out.println("Order reference=" + savedOrder.getReference());
+        System.out.println("Order total HT=" + savedOrder.getTotalAmountWithoutVAT());
+        System.out.println("Order total TTC=" + savedOrder.getTotalAmountWithVAT());
+
+        Order loadedOrder = new DataRetriever().findOrderByReference(savedOrder.getReference());
+        System.out.println("Loaded order reference=" + loadedOrder.getReference());
+        System.out.println("Loaded order total HT=" + loadedOrder.getTotalAmountWithoutVAT());
+        System.out.println("Loaded order total TTC=" + loadedOrder.getTotalAmountWithVAT());
     }
 }

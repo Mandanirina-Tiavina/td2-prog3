@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,60 @@ public class DataRetriever {
             }
             dbConnection.closeConnection(connection);
             throw new RuntimeException("Dish not found " + id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    Order findOrderByReference(String reference) {
+        DBConnection dbConnection = new DBConnection();
+        Connection connection = dbConnection.getConnection();
+        try {
+            String sql = "select o.id as order_id, o.reference, o.creation_datetime, od.id as dish_order_id, od.quantity, d.id as dish_id, d.name as dish_name, d.dish_type, d.price as dish_price from \"order\" o left join dish_order od on o.id = od.id_order left join dish d on od.id_dish = d.id where o.reference = ? order by od.id;";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, reference);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.next()) {
+                dbConnection.closeConnection(connection);
+                throw new RuntimeException("Order not found " + reference);
+            }
+
+            Order order = new Order();
+            order.setId(resultSet.getInt("order_id"));
+            order.setReference(resultSet.getString("reference"));
+            Timestamp ts = resultSet.getTimestamp("creation_datetime");
+            if (ts != null) {
+                order.setCreationDatetime(ts.toInstant());
+            }
+
+            List<DishOrder> dishOrders = new ArrayList<>();
+
+            do {
+                Object dishOrderIdObj = resultSet.getObject("dish_order_id");
+                if (dishOrderIdObj == null) {
+                    continue;
+                }
+
+                DishOrder dishOrder = new DishOrder();
+                dishOrder.setId(resultSet.getInt("dish_order_id"));
+                dishOrder.setQuantity(resultSet.getInt("quantity"));
+
+                Dish dish = new Dish();
+                dish.setId(resultSet.getInt("dish_id"));
+                dish.setName(resultSet.getString("dish_name"));
+                dish.setDishType(DishTypeEnum.valueOf(resultSet.getString("dish_type")));
+                Object dishPriceObj = resultSet.getObject("dish_price");
+                dish.setPrice(dishPriceObj == null ? null : resultSet.getDouble("dish_price"));
+
+                dishOrder.setDish(dish);
+
+                dishOrders.add(dishOrder);
+            } while (resultSet.next());
+
+            order.setDishOrders(dishOrders);
+            dbConnection.closeConnection(connection);
+            return order;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -201,6 +256,112 @@ public class DataRetriever {
             throw new RuntimeException(e);
         }
     }
+    
+    Order saveOrder(Order orderToSave) {
+        if (orderToSave == null) {
+            throw new RuntimeException("Order is null");
+        }
+
+        Instant orderTime = orderToSave.getCreationDatetime();
+        if (orderTime == null) {
+            orderTime = Instant.now();
+            orderToSave.setCreationDatetime(orderTime);
+        }
+
+        checkStockForOrder(orderToSave, orderTime);
+
+        String upsertOrderSql = "INSERT INTO \"order\" (id, reference, creation_datetime) VALUES (?, ?, ?) ON CONFLICT (id) DO UPDATE SET reference = EXCLUDED.reference, creation_datetime = EXCLUDED.creation_datetime RETURNING id";
+
+        try (Connection conn = new DBConnection().getConnection()) {
+            conn.setAutoCommit(false);
+
+            String reference = orderToSave.getReference();
+            if (reference == null) {
+                reference = generateNextOrderReference(conn);
+                orderToSave.setReference(reference);
+            }
+
+            Integer orderId;
+            try (PreparedStatement ps = conn.prepareStatement(upsertOrderSql)) {
+                if (orderToSave.getId() != null) {
+                    ps.setInt(1, orderToSave.getId());
+                } else {
+                    ps.setInt(1, getNextSerialValue(conn, "\"order\"", "id"));
+                }
+                ps.setString(2, reference);
+                ps.setTimestamp(3, Timestamp.from(orderTime));
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    orderId = rs.getInt(1);
+                }
+            }
+
+            detachDishOrders(conn, orderId);
+            attachDishOrders(conn, orderId, orderToSave.getDishOrders());
+
+            conn.commit();
+            return findOrderByReference(reference);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void checkStockForOrder(Order orderToSave, Instant orderTime) {
+        List<DishOrder> dishOrders = orderToSave.getDishOrders();
+        if (dishOrders == null || dishOrders.isEmpty()) {
+            return;
+        }
+
+        List<Integer> ingredientIds = new ArrayList<>();
+        List<Double> requiredQuantities = new ArrayList<>();
+
+        for (int i = 0; i < dishOrders.size(); i++) {
+            DishOrder dishOrder = dishOrders.get(i);
+            Dish dish = dishOrder.getDish();
+            if (dish == null || dish.getId() == null) {
+                continue;
+            }
+
+            List<Ingredient> recipeIngredients = findIngredientByDishId(dish.getId());
+            for (int j = 0; j < recipeIngredients.size(); j++) {
+                Ingredient ingredient = recipeIngredients.get(j);
+                if (ingredient.getQuantity() == null) {
+                    continue;
+                }
+
+                double requiredForLine = ingredient.getQuantity() * dishOrder.getQuantity();
+
+                int index = -1;
+                for (int k = 0; k < ingredientIds.size(); k++) {
+                    if (ingredientIds.get(k).equals(ingredient.getId())) {
+                        index = k;
+                        break;
+                    }
+                }
+                if (index == -1) {
+                    ingredientIds.add(ingredient.getId());
+                    requiredQuantities.add(requiredForLine);
+                } else {
+                    double current = requiredQuantities.get(index);
+                    requiredQuantities.set(index, current + requiredForLine);
+                }
+            }
+        }
+
+        for (int i = 0; i < ingredientIds.size(); i++) {
+            Integer ingredientId = ingredientIds.get(i);
+            double required = requiredQuantities.get(i);
+
+            Ingredient ingredient = findIngredientById(ingredientId);
+            StockValue stockValue = ingredient.getStockValueAt(orderTime);
+            double available = stockValue.getQuantity();
+
+            if (available < required) {
+                throw new RuntimeException("Stock insuffisant pour l'ingrédient " + ingredient.getName());
+            }
+        }
+    }
     private void detachIngredients(Connection conn, Integer dishId)
             throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
@@ -229,6 +390,39 @@ public class DataRetriever {
                     ps.setDouble(3, ingredient.getQuantity());
                 }
                 ps.setString(4, "KG");
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
+    private void detachDishOrders(Connection conn, Integer orderId)
+            throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "DELETE FROM dish_order WHERE id_order = ?")) {
+            ps.setInt(1, orderId);
+            ps.executeUpdate();
+        }
+    }
+
+    private void attachDishOrders(Connection conn, Integer orderId, List<DishOrder> dishOrders)
+            throws SQLException {
+
+        if (dishOrders == null || dishOrders.isEmpty()) {
+            return;
+        }
+
+        String attachSql = "INSERT INTO dish_order (id_order, id_dish, quantity) VALUES (?, ?, ?)";
+
+        try (PreparedStatement ps = conn.prepareStatement(attachSql)) {
+            for (int i = 0; i < dishOrders.size(); i++) {
+                DishOrder dishOrder = dishOrders.get(i);
+                if (dishOrder.getDish() == null || dishOrder.getDish().getId() == null) {
+                    continue;
+                }
+                ps.setInt(1, orderId);
+                ps.setInt(2, dishOrder.getDish().getId());
+                ps.setInt(3, dishOrder.getQuantity());
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -310,6 +504,33 @@ public class DataRetriever {
         return null;
     }
 
+    private String generateNextOrderReference(Connection conn) throws SQLException {
+        String sql = "select max(reference) as max_ref from \"order\"";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                String maxRef = null;
+                if (rs.next()) {
+                    maxRef = rs.getString("max_ref");
+                }
+
+                int nextNumber = 1;
+                if (maxRef != null && maxRef.startsWith("ORD") && maxRef.length() > 3) {
+                    String numberPart = maxRef.substring(3);
+                    try {
+                        nextNumber = Integer.parseInt(numberPart) + 1;
+                    } catch (NumberFormatException e) {
+                        nextNumber = 1;
+                    }
+                }
+
+                String pattern = "%05d";
+                String formattedNumber = String.format(pattern, nextNumber);
+                return "ORD" + formattedNumber;
+            }
+        }
+    }
+
     private int getNextSerialValue(Connection conn, String tableName, String columnName)
             throws SQLException {
 
@@ -333,13 +554,30 @@ public class DataRetriever {
     }
 
     private void updateSequenceNextValue(Connection conn, String tableName, String columnName, String sequenceName) throws SQLException {
-        String setValSql = String.format(
-                "SELECT setval('%s', (SELECT COALESCE(MAX(%s), 0) FROM %s))",
-                sequenceName, columnName, tableName
+        String maxSql = String.format(
+                "SELECT COALESCE(MAX(%s), 0) FROM %s",
+                columnName, tableName
         );
 
-        try (PreparedStatement ps = conn.prepareStatement(setValSql)) {
-            ps.executeQuery();
+        try (PreparedStatement psMax = conn.prepareStatement(maxSql)) {
+            try (ResultSet rs = psMax.executeQuery()) {
+                if (rs.next()) {
+                    long maxValue = rs.getLong(1);
+
+                    if (maxValue == 0L) {
+                        return;
+                    }
+
+                    String setValSql = String.format(
+                            "SELECT setval('%s', %d)",
+                            sequenceName, maxValue
+                    );
+
+                    try (PreparedStatement psSet = conn.prepareStatement(setValSql)) {
+                        psSet.executeQuery();
+                    }
+                }
+            }
         }
     }
 }

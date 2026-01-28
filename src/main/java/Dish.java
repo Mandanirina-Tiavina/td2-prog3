@@ -28,7 +28,7 @@ public class Dish {
         return totalPrice;
     }
 
-    public Dish() {
+    public Dish () {
     }
 
     public Dish(Integer id, String name, DishTypeEnum dishType, List<Ingredient> ingredients) {
