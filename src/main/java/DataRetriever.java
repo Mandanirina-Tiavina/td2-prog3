@@ -2,7 +2,6 @@ import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DataRetriever {
     Dish findDishById(Integer id) {
@@ -34,7 +33,7 @@ public class DataRetriever {
         DBConnection dbConnection = new DBConnection();
         Connection connection = dbConnection.getConnection();
         try {
-            String sql = "select o.id as order_id, o.reference, o.creation_datetime, od.id as dish_order_id, od.quantity, d.id as dish_id, d.name as dish_name, d.dish_type, d.price as dish_price from \"order\" o left join dish_order od on o.id = od.id_order left join dish d on od.id_dish = d.id where o.reference = ? order by od.id;";
+            String sql = "select o.id as order_id, o.reference, o.creation_datetime, o.arrival_datetime, o.departure_datetime, t.id as table_id, t.number as table_number, od.id as dish_order_id, od.quantity, d.id as dish_id, d.name as dish_name, d.dish_type, d.price as dish_price from \"order\" o left join \"table\" t on o.id_table = t.id left join dish_order od on o.id = od.id_order left join dish d on od.id_dish = d.id where o.reference = ? order by od.id;";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, reference);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -50,6 +49,21 @@ public class DataRetriever {
             Timestamp ts = resultSet.getTimestamp("creation_datetime");
             if (ts != null) {
                 order.setCreationDatetime(ts.toInstant());
+            }
+            Timestamp tsArr = resultSet.getTimestamp("arrival_datetime");
+            if (tsArr != null) {
+                order.setArrivalDatetime(tsArr.toInstant());
+            }
+            Timestamp tsDep = resultSet.getTimestamp("departure_datetime");
+            if (tsDep != null) {
+                order.setDepartureDatetime(tsDep.toInstant());
+            }
+            Object tableIdObj = resultSet.getObject("table_id");
+            if (tableIdObj != null) {
+                Table table = new Table();
+                table.setId(resultSet.getInt("table_id"));
+                table.setNumber(resultSet.getInt("table_number"));
+                order.setTable(table);
             }
 
             List<DishOrder> dishOrders = new ArrayList<>();
@@ -270,7 +284,7 @@ public class DataRetriever {
 
         checkStockForOrder(orderToSave, orderTime);
 
-        String upsertOrderSql = "INSERT INTO \"order\" (id, reference, creation_datetime) VALUES (?, ?, ?) ON CONFLICT (id) DO UPDATE SET reference = EXCLUDED.reference, creation_datetime = EXCLUDED.creation_datetime RETURNING id";
+        String upsertOrderSql = "INSERT INTO \"order\" (id, reference, creation_datetime, id_table, arrival_datetime, departure_datetime) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET reference = EXCLUDED.reference, creation_datetime = EXCLUDED.creation_datetime, id_table = EXCLUDED.id_table, arrival_datetime = EXCLUDED.arrival_datetime, departure_datetime = EXCLUDED.departure_datetime RETURNING id";
 
         try (Connection conn = new DBConnection().getConnection()) {
             conn.setAutoCommit(false);
@@ -281,6 +295,35 @@ public class DataRetriever {
                 orderToSave.setReference(reference);
             }
 
+            Table requestedTable = orderToSave.getTable();
+            if (requestedTable == null || requestedTable.getId() == null) {
+                throw new RuntimeException("La table est obligatoire pour une commande");
+            }
+
+            boolean available = isTableAvailableAt(conn, requestedTable.getId(), orderTime);
+            if (!available) {
+                List<Table> alternatives = findAvailableTablesAt(conn, orderTime);
+                StringBuilder msg = new StringBuilder();
+                msg.append("La table spécifiée n'est pas disponible à l'instant de la commande.");
+                if (!alternatives.isEmpty()) {
+                    msg.append(" Tables disponibles: ");
+                    for (int i = 0; i < alternatives.size(); i++) {
+                        if (i > 0) msg.append(", ");
+                        msg.append(alternatives.get(i).getNumber());
+                    }
+                } else {
+                    msg.append(" Aucune table n'est disponible.");
+                }
+                throw new RuntimeException(msg.toString());
+            }
+
+            Instant arrival = orderToSave.getArrivalDatetime();
+            if (arrival == null) {
+                arrival = orderTime;
+                orderToSave.setArrivalDatetime(arrival);
+            }
+            Instant departure = orderToSave.getDepartureDatetime();
+
             Integer orderId;
             try (PreparedStatement ps = conn.prepareStatement(upsertOrderSql)) {
                 if (orderToSave.getId() != null) {
@@ -290,6 +333,13 @@ public class DataRetriever {
                 }
                 ps.setString(2, reference);
                 ps.setTimestamp(3, Timestamp.from(orderTime));
+                ps.setInt(4, requestedTable.getId());
+                ps.setTimestamp(5, Timestamp.from(arrival));
+                if (departure != null) {
+                    ps.setTimestamp(6, Timestamp.from(departure));
+                } else {
+                    ps.setNull(6, Types.TIMESTAMP);
+                }
 
                 try (ResultSet rs = ps.executeQuery()) {
                     rs.next();
@@ -305,6 +355,50 @@ public class DataRetriever {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Table> findAvailableTablesAt(Instant at) {
+        DBConnection dbConnection = new DBConnection();
+        Connection conn = dbConnection.getConnection();
+        try {
+            return findAvailableTablesAt(conn, at);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            dbConnection.closeConnection(conn);
+        }
+    }
+
+    private boolean isTableAvailableAt(Connection conn, Integer tableId, Instant at) throws SQLException {
+        String sql = "select 1 from \"order\" o where o.id_table = ? and o.arrival_datetime <= ? and (o.departure_datetime is null or o.departure_datetime > ?) limit 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            Timestamp ts = Timestamp.from(at);
+            ps.setInt(1, tableId);
+            ps.setTimestamp(2, ts);
+            ps.setTimestamp(3, ts);
+            try (ResultSet rs = ps.executeQuery()) {
+                return !rs.next();
+            }
+        }
+    }
+
+    private List<Table> findAvailableTablesAt(Connection conn, Instant at) throws SQLException {
+        List<Table> tables = new ArrayList<>();
+        String sql = "select t.id, t.number from \"table\" t where not exists (select 1 from \"order\" o where o.id_table = t.id and o.arrival_datetime <= ? and (o.departure_datetime is null or o.departure_datetime > ?)) order by t.number";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            Timestamp ts = Timestamp.from(at);
+            ps.setTimestamp(1, ts);
+            ps.setTimestamp(2, ts);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Table t = new Table();
+                    t.setId(rs.getInt("id"));
+                    t.setNumber(rs.getInt("number"));
+                    tables.add(t);
+                }
+            }
+        }
+        return tables;
     }
 
     private void checkStockForOrder(Order orderToSave, Instant orderTime) {

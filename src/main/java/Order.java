@@ -5,6 +5,9 @@ public class Order {
     private Integer id;
     private String reference;
     private Instant creationDatetime;
+    private Table table;
+    private Instant arrivalDatetime;
+    private Instant departureDatetime;
     private List<DishOrder> dishOrders;
 
     public Double getTotalAmountWithoutVAT() {
@@ -51,6 +54,30 @@ public class Order {
 
     public void setCreationDatetime(Instant creationDatetime) {
         this.creationDatetime = creationDatetime;
+    }
+
+    public Table getTable() {
+        return table;
+    }
+
+    public void setTable(Table table) {
+        this.table = table;
+    }
+
+    public Instant getArrivalDatetime() {
+        return arrivalDatetime;
+    }
+
+    public void setArrivalDatetime(Instant arrivalDatetime) {
+        this.arrivalDatetime = arrivalDatetime;
+    }
+
+    public Instant getDepartureDatetime() {
+        return departureDatetime;
+    }
+
+    public void setDepartureDatetime(Instant departureDatetime) {
+        this.departureDatetime = departureDatetime;
     }
 
     public List<DishOrder> getDishOrders() {

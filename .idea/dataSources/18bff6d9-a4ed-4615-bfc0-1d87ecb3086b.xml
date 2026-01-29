@@ -3648,7 +3648,7 @@ L</Labels>
     <table id="287" parent="276" name="order">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>32901</ObjectId>
-      <StateNumber>877</StateNumber>
+      <StateNumber>893</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </table>
@@ -3659,7 +3659,14 @@ L</Labels>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>mini_dish_db_manager</OwnerName>
     </table>
-    <column id="289" parent="283" name="id">
+    <table id="289" parent="276" name="table">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>32946</ObjectId>
+      <StateNumber>888</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>mini_dish_db_manager</OwnerName>
+    </table>
+    <column id="290" parent="283" name="id">
       <DefaultExpression>nextval(&apos;dish_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -3668,25 +3675,25 @@ L</Labels>
       <SequenceId>32823</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="290" parent="283" name="name">
+    <column id="291" parent="283" name="name">
       <Position>2</Position>
       <StateNumber>852</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="291" parent="283" name="dish_type">
+    <column id="292" parent="283" name="dish_type">
       <Position>3</Position>
       <StateNumber>852</StateNumber>
       <StoredType>dish_type|0s</StoredType>
       <TypeId>32816</TypeId>
     </column>
-    <column id="292" parent="283" name="price">
+    <column id="293" parent="283" name="price">
       <Position>4</Position>
       <StateNumber>855</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <index id="293" parent="283" name="dish_pkey">
+    <index id="294" parent="283" name="dish_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32829</ObjectId>
@@ -3695,14 +3702,14 @@ L</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="294" parent="283" name="dish_pkey">
+    <key id="295" parent="283" name="dish_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32830</ObjectId>
       <Primary>1</Primary>
       <StateNumber>852</StateNumber>
       <UnderlyingIndexId>32829</UnderlyingIndexId>
     </key>
-    <column id="295" parent="284" name="id">
+    <column id="296" parent="284" name="id">
       <DefaultExpression>nextval(&apos;dish_ingredient_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -3711,31 +3718,31 @@ L</Labels>
       <SequenceId>32863</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="296" parent="284" name="id_dish">
+    <column id="297" parent="284" name="id_dish">
       <Position>2</Position>
       <StateNumber>863</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="297" parent="284" name="id_ingredient">
+    <column id="298" parent="284" name="id_ingredient">
       <Position>3</Position>
       <StateNumber>863</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="298" parent="284" name="quantity_required">
+    <column id="299" parent="284" name="quantity_required">
       <Position>4</Position>
       <StateNumber>863</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="299" parent="284" name="unit">
+    <column id="300" parent="284" name="unit">
       <Position>5</Position>
       <StateNumber>863</StateNumber>
       <StoredType>unit_type|0s</StoredType>
       <TypeId>32857</TypeId>
     </column>
-    <foreign-key id="300" parent="284" name="dish_ingredient_id_dish_fkey">
+    <foreign-key id="301" parent="284" name="dish_ingredient_id_dish_fkey">
       <ColNames>id_dish</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32871</ObjectId>
@@ -3743,7 +3750,7 @@ L</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>32824</RefTableId>
     </foreign-key>
-    <foreign-key id="301" parent="284" name="dish_ingredient_id_ingredient_fkey">
+    <foreign-key id="302" parent="284" name="dish_ingredient_id_ingredient_fkey">
       <ColNames>id_ingredient</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32876</ObjectId>
@@ -3751,7 +3758,7 @@ L</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>32844</RefTableId>
     </foreign-key>
-    <index id="302" parent="284" name="dish_ingredient_pkey">
+    <index id="303" parent="284" name="dish_ingredient_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32869</ObjectId>
@@ -3760,14 +3767,14 @@ L</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="303" parent="284" name="dish_ingredient_pkey">
+    <key id="304" parent="284" name="dish_ingredient_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32870</ObjectId>
       <Primary>1</Primary>
       <StateNumber>863</StateNumber>
       <UnderlyingIndexId>32869</UnderlyingIndexId>
     </key>
-    <column id="304" parent="285" name="id">
+    <column id="305" parent="285" name="id">
       <DefaultExpression>nextval(&apos;dish_order_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -3776,25 +3783,25 @@ L</Labels>
       <SequenceId>32927</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="305" parent="285" name="id_order">
+    <column id="306" parent="285" name="id_order">
       <Position>2</Position>
       <StateNumber>883</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="306" parent="285" name="id_dish">
+    <column id="307" parent="285" name="id_dish">
       <Position>3</Position>
       <StateNumber>883</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="307" parent="285" name="quantity">
+    <column id="308" parent="285" name="quantity">
       <Position>4</Position>
       <StateNumber>883</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <foreign-key id="308" parent="285" name="dish_order_id_order_fkey">
+    <foreign-key id="309" parent="285" name="dish_order_id_order_fkey">
       <ColNames>id_order</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32935</ObjectId>
@@ -3802,7 +3809,7 @@ L</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>32901</RefTableId>
     </foreign-key>
-    <foreign-key id="309" parent="285" name="dish_order_id_dish_fkey">
+    <foreign-key id="310" parent="285" name="dish_order_id_dish_fkey">
       <ColNames>id_dish</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32940</ObjectId>
@@ -3810,7 +3817,7 @@ L</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>32824</RefTableId>
     </foreign-key>
-    <index id="310" parent="285" name="dish_order_pkey">
+    <index id="311" parent="285" name="dish_order_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32933</ObjectId>
@@ -3819,14 +3826,14 @@ L</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="311" parent="285" name="dish_order_pkey">
+    <key id="312" parent="285" name="dish_order_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32934</ObjectId>
       <Primary>1</Primary>
       <StateNumber>883</StateNumber>
       <UnderlyingIndexId>32933</UnderlyingIndexId>
     </key>
-    <column id="312" parent="286" name="id">
+    <column id="313" parent="286" name="id">
       <DefaultExpression>nextval(&apos;ingredient_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -3835,37 +3842,37 @@ L</Labels>
       <SequenceId>32843</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="313" parent="286" name="name">
+    <column id="314" parent="286" name="name">
       <Position>2</Position>
       <StateNumber>854</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="314" parent="286" name="price">
+    <column id="315" parent="286" name="price">
       <Position>3</Position>
       <StateNumber>854</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="315" parent="286" name="category">
+    <column id="316" parent="286" name="category">
       <Position>4</Position>
       <StateNumber>854</StateNumber>
       <StoredType>ingredient_category|0s</StoredType>
       <TypeId>32832</TypeId>
     </column>
-    <column id="316" parent="286" name="id_dish">
+    <column id="317" parent="286" name="id_dish">
       <Position>5</Position>
       <StateNumber>854</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="317" parent="286" name="required_quantity">
+    <column id="318" parent="286" name="required_quantity">
       <Position>6</Position>
       <StateNumber>856</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <foreign-key id="318" parent="286" name="ingredient_id_dish_fkey">
+    <foreign-key id="319" parent="286" name="ingredient_id_dish_fkey">
       <ColNames>id_dish</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32851</ObjectId>
@@ -3873,7 +3880,7 @@ L</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>32824</RefTableId>
     </foreign-key>
-    <index id="319" parent="286" name="ingredient_pkey">
+    <index id="320" parent="286" name="ingredient_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32849</ObjectId>
@@ -3882,14 +3889,14 @@ L</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="320" parent="286" name="ingredient_pkey">
+    <key id="321" parent="286" name="ingredient_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32850</ObjectId>
       <Primary>1</Primary>
       <StateNumber>854</StateNumber>
       <UnderlyingIndexId>32849</UnderlyingIndexId>
     </key>
-    <column id="321" parent="287" name="id">
+    <column id="322" parent="287" name="id">
       <DefaultExpression>nextval(&apos;order_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -3898,19 +3905,45 @@ L</Labels>
       <SequenceId>32900</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="322" parent="287" name="reference">
+    <column id="323" parent="287" name="reference">
       <Position>2</Position>
       <StateNumber>876</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="323" parent="287" name="creation_datetime">
+    <column id="324" parent="287" name="creation_datetime">
       <Position>3</Position>
       <StateNumber>876</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <index id="324" parent="287" name="order_pkey">
+    <column id="325" parent="287" name="id_table">
+      <Position>4</Position>
+      <StateNumber>891</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="326" parent="287" name="arrival_datetime">
+      <Position>5</Position>
+      <StateNumber>892</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <column id="327" parent="287" name="departure_datetime">
+      <Position>6</Position>
+      <StateNumber>893</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <foreign-key id="328" parent="287" name="order_id_table_fkey">
+      <ColNames>id_table</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>32953</ObjectId>
+      <StateNumber>891</StateNumber>
+      <RefKeyColPositions>1</RefKeyColPositions>
+      <RefTableId>32946</RefTableId>
+    </foreign-key>
+    <index id="329" parent="287" name="order_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32906</ObjectId>
@@ -3919,14 +3952,14 @@ L</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="325" parent="287" name="order_pkey">
+    <key id="330" parent="287" name="order_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32907</ObjectId>
       <Primary>1</Primary>
       <StateNumber>876</StateNumber>
       <UnderlyingIndexId>32906</UnderlyingIndexId>
     </key>
-    <column id="326" parent="288" name="id">
+    <column id="331" parent="288" name="id">
       <DefaultExpression>nextval(&apos;stock_movement_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -3935,37 +3968,37 @@ L</Labels>
       <SequenceId>32887</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="327" parent="288" name="id_ingredient">
+    <column id="332" parent="288" name="id_ingredient">
       <Position>2</Position>
       <StateNumber>873</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="328" parent="288" name="quantity">
+    <column id="333" parent="288" name="quantity">
       <Position>3</Position>
       <StateNumber>873</StateNumber>
       <StoredType>numeric(10,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="329" parent="288" name="type">
+    <column id="334" parent="288" name="type">
       <Position>4</Position>
       <StateNumber>873</StateNumber>
       <StoredType>movement_type|0s</StoredType>
       <TypeId>32882</TypeId>
     </column>
-    <column id="330" parent="288" name="unit">
+    <column id="335" parent="288" name="unit">
       <Position>5</Position>
       <StateNumber>873</StateNumber>
       <StoredType>unit_type|0s</StoredType>
       <TypeId>32857</TypeId>
     </column>
-    <column id="331" parent="288" name="creation_datetime">
+    <column id="336" parent="288" name="creation_datetime">
       <Position>6</Position>
       <StateNumber>873</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="332" parent="288" name="stock_movement_id_ingredient_fkey">
+    <foreign-key id="337" parent="288" name="stock_movement_id_ingredient_fkey">
       <ColNames>id_ingredient</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32895</ObjectId>
@@ -3973,7 +4006,7 @@ L</Labels>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>32844</RefTableId>
     </foreign-key>
-    <index id="333" parent="288" name="stock_movement_pkey">
+    <index id="338" parent="288" name="stock_movement_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32893</ObjectId>
@@ -3982,12 +4015,43 @@ L</Labels>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="334" parent="288" name="stock_movement_pkey">
+    <key id="339" parent="288" name="stock_movement_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>32894</ObjectId>
       <Primary>1</Primary>
       <StateNumber>873</StateNumber>
       <UnderlyingIndexId>32893</UnderlyingIndexId>
+    </key>
+    <column id="340" parent="289" name="id">
+      <DefaultExpression>nextval(&apos;table_id_seq&apos;::regclass)</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>888</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <SequenceId>32945</SequenceId>
+      <TypeId>23</TypeId>
+    </column>
+    <column id="341" parent="289" name="number">
+      <Position>2</Position>
+      <StateNumber>888</StateNumber>
+      <StoredType>integer|0s</StoredType>
+      <TypeId>23</TypeId>
+    </column>
+    <index id="342" parent="289" name="table_pkey">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>32951</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>888</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+    </index>
+    <key id="343" parent="289" name="table_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>32952</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>888</StateNumber>
+      <UnderlyingIndexId>32951</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>

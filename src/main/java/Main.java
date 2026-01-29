@@ -61,6 +61,33 @@ public class Main {
         StockValue beurreStock = beurre.getStockValueAt(t);
         System.out.println("Beurre stock=" + beurreStock.getQuantity() + " " + beurreStock.getUnit());
 
+        List<Table> freeAtT = dataRetriever.findAvailableTablesAt(t);
+        String s1 = "Available tables at t=" + t + ": ";
+        int i = 0;
+        while (i < freeAtT.size()) {
+            if (i > 0) s1 = s1 + ", ";
+            s1 = s1 + freeAtT.get(i).getNumber();
+            i = i + 1;
+        }
+        System.out.println(s1);
+        
+        Table selectedTable = null;
+        int k = 0;
+        while (k < freeAtT.size()) {
+            if (freeAtT.get(k).getNumber() == 1) {
+                selectedTable = freeAtT.get(k);
+                break;
+            }
+            k = k + 1;
+        }
+        if (selectedTable == null && freeAtT.size() > 0) {
+            selectedTable = freeAtT.get(0);
+        }
+        if (selectedTable == null) {
+            System.out.println("No available table at t, skipping table tests.");
+            return;
+        }
+
         Order order = new Order();
 
         List<DishOrder> dishOrders = new ArrayList<>();
@@ -78,11 +105,37 @@ public class Main {
         dishOrders.add(line2);
 
         order.setDishOrders(dishOrders);
+        order.setCreationDatetime(t);
+
+        order.setTable(selectedTable);
 
         Order savedOrder = new DataRetriever().saveOrder(order);
         System.out.println("Order reference=" + savedOrder.getReference());
         System.out.println("Order total HT=" + savedOrder.getTotalAmountWithoutVAT());
         System.out.println("Order total TTC=" + savedOrder.getTotalAmountWithVAT());
+
+        List<Table> freeAfterSave = dataRetriever.findAvailableTablesAt(t);
+        String s2 = "Available tables at t after save: ";
+        int j = 0;
+        while (j < freeAfterSave.size()) {
+            if (j > 0) s2 = s2 + ", ";
+            s2 = s2 + freeAfterSave.get(j).getNumber();
+            j = j + 1;
+        }
+        System.out.println(s2);
+
+        List<Table> alternatives = dataRetriever.findAvailableTablesAt(t);
+        if (!alternatives.isEmpty()) {
+            Table alt = alternatives.get(0);
+            Order order2 = new Order();
+            order2.setCreationDatetime(t);
+            order2.setTable(alt);
+            order2.setDishOrders(new ArrayList<>());
+            Order savedOrder2 = new DataRetriever().saveOrder(order2);
+            System.out.println("Second order on alternative table (" + alt.getNumber() + ") reference=" + savedOrder2.getReference());
+        } else {
+            System.out.println("No alternative table available at t");
+        }
 
         Order loadedOrder = new DataRetriever().findOrderByReference(savedOrder.getReference());
         System.out.println("Loaded order reference=" + loadedOrder.getReference());
