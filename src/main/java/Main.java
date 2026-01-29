@@ -5,18 +5,16 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         DataRetriever dataRetriever = new DataRetriever();
+        dataRetriever.freeAllOpenOrdersForTests();
 
-        // Salade fraîche (id = 1)
         Dish salade = dataRetriever.findDishById(1);
         System.out.println("Salade fraîche cost=" + salade.getDishCost());
         System.out.println("Salade fraîche margin=" + salade.getGrossMargin());
 
-        // Poulet grillé (id = 2)
         Dish poulet = dataRetriever.findDishById(2);
         System.out.println("Poulet grillé cost=" + poulet.getDishCost());
         System.out.println("Poulet grillé margin=" + poulet.getGrossMargin());
 
-        // Riz aux légumes (id = 3) : price NULL -> exception pour la marge
         Dish riz = dataRetriever.findDishById(3);
         System.out.println("Riz aux légumes cost=" + riz.getDishCost());
         try {
@@ -25,12 +23,10 @@ public class Main {
             System.out.println("Riz aux légumes margin=ERREUR: " + e.getMessage());
         }
 
-        // Gâteau au chocolat (id = 4)
         Dish gateau = dataRetriever.findDishById(4);
         System.out.println("Gâteau au chocolat cost=" + gateau.getDishCost());
         System.out.println("Gâteau au chocolat margin=" + gateau.getGrossMargin());
 
-        // Salade de fruits (id = 5) : price NULL -> exception pour la marge
         Dish saladeFruits = dataRetriever.findDishById(5);
         System.out.println("Salade de fruits cost=" + saladeFruits.getDishCost());
         try {
@@ -70,7 +66,7 @@ public class Main {
             i = i + 1;
         }
         System.out.println(s1);
-        
+
         Table selectedTable = null;
         int k = 0;
         while (k < freeAtT.size()) {
@@ -84,8 +80,16 @@ public class Main {
             selectedTable = freeAtT.get(0);
         }
         if (selectedTable == null) {
-            System.out.println("No available table at t, skipping table tests.");
-            return;
+            Instant t2 = Instant.now();
+            List<Table> freeAtT2 = dataRetriever.findAvailableTablesAt(t2);
+            if (freeAtT2.size() > 0) {
+                selectedTable = freeAtT2.get(0);
+                t = t2;
+                System.out.println("Fallback time used: " + t + ", table=" + selectedTable.getNumber());
+            } else {
+                System.out.println("No available table for tests");
+                return;
+            }
         }
 
         Order order = new Order();
@@ -106,6 +110,11 @@ public class Main {
 
         order.setDishOrders(dishOrders);
         order.setCreationDatetime(t);
+        order.setDepartureDatetime(t.plusSeconds(3600));
+
+        boolean available = selectedTable.isAvailableAt(t);
+        String availText = available ? "Oui" : "Non";
+        System.out.println("Table " + selectedTable.getNumber() + " disponible à t=" + availText);
 
         order.setTable(selectedTable);
 
@@ -114,32 +123,31 @@ public class Main {
         System.out.println("Order total HT=" + savedOrder.getTotalAmountWithoutVAT());
         System.out.println("Order total TTC=" + savedOrder.getTotalAmountWithVAT());
 
-        List<Table> freeAfterSave = dataRetriever.findAvailableTablesAt(t);
+        List<Table> freeAfter = dataRetriever.findAvailableTablesAt(t);
         String s2 = "Available tables at t after save: ";
         int j = 0;
-        while (j < freeAfterSave.size()) {
+        while (j < freeAfter.size()) {
             if (j > 0) s2 = s2 + ", ";
-            s2 = s2 + freeAfterSave.get(j).getNumber();
+            s2 = s2 + freeAfter.get(j).getNumber();
             j = j + 1;
         }
         System.out.println(s2);
 
-        List<Table> alternatives = dataRetriever.findAvailableTablesAt(t);
-        if (!alternatives.isEmpty()) {
-            Table alt = alternatives.get(0);
-            Order order2 = new Order();
-            order2.setCreationDatetime(t);
-            order2.setTable(alt);
-            order2.setDishOrders(new ArrayList<>());
-            Order savedOrder2 = new DataRetriever().saveOrder(order2);
-            System.out.println("Second order on alternative table (" + alt.getNumber() + ") reference=" + savedOrder2.getReference());
-        } else {
-            System.out.println("No alternative table available at t");
-        }
+        boolean availableAfter = selectedTable.isAvailableAt(t);
+        String availAfterText = availableAfter ? "Oui" : "Non";
+        System.out.println("Table " + selectedTable.getNumber() + " disponible à t après sauvegarde=" + availAfterText);
+
+        Instant tPlus1h = t.plusSeconds(3600);
+        boolean availablePlus1h = selectedTable.isAvailableAt(tPlus1h);
+        String availPlus1hText = availablePlus1h ? "Oui" : "Non";
+        System.out.println("Table " + selectedTable.getNumber() + " disponible à t+1h=" + availPlus1hText);
 
         Order loadedOrder = new DataRetriever().findOrderByReference(savedOrder.getReference());
         System.out.println("Loaded order reference=" + loadedOrder.getReference());
         System.out.println("Loaded order total HT=" + loadedOrder.getTotalAmountWithoutVAT());
         System.out.println("Loaded order total TTC=" + loadedOrder.getTotalAmountWithVAT());
+        Table loadedTable = loadedOrder.getTable();
+        System.out.println("Loaded order table=" + (loadedTable == null ? null : loadedTable.getNumber()));
+        System.out.println("Loaded order arrival=" + loadedOrder.getArrivalDatetime() + ", departure=" + loadedOrder.getDepartureDatetime());
     }
 }

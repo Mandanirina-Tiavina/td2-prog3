@@ -22,10 +22,11 @@ public class DataRetriever {
                 dish.setIngredients(findIngredientByDishId(id));
                 return dish;
             }
-            dbConnection.closeConnection(connection);
             throw new RuntimeException("Dish not found " + id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            dbConnection.closeConnection(connection);
         }
     }
 
@@ -39,7 +40,6 @@ public class DataRetriever {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-                dbConnection.closeConnection(connection);
                 throw new RuntimeException("Order not found " + reference);
             }
 
@@ -91,10 +91,11 @@ public class DataRetriever {
             } while (resultSet.next());
 
             order.setDishOrders(dishOrders);
-            dbConnection.closeConnection(connection);
             return order;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            dbConnection.closeConnection(connection);
         }
     }
 
@@ -366,6 +367,30 @@ public class DataRetriever {
             throw new RuntimeException(e);
         } finally {
             dbConnection.closeConnection(conn);
+        }
+    }
+
+    public boolean isTableAvailableAt(Integer tableId, Instant at) {
+        DBConnection dbConnection = new DBConnection();
+        Connection conn = dbConnection.getConnection();
+        try {
+            return isTableAvailableAt(conn, tableId, at);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            dbConnection.closeConnection(conn);
+        }
+    }
+
+    public void freeAllOpenOrdersForTests() {
+        try (Connection conn = new DBConnection().getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement("update \"order\" set departure_datetime = creation_datetime where departure_datetime is null")) {
+                ps.executeUpdate();
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
